@@ -1,0 +1,63 @@
+name: Build and Deploy VideoConverter Site
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run build.py
+        run: python3 build.py
+
+      - name: Verify output
+        run: |
+          echo "=== Generated pages ==="
+          find videoconverter-site -name "*.html" | sort
+          echo ""
+          echo "=== Total files: $(find videoconverter-site -type f | wc -l) ==="
+          echo ""
+          echo "=== Language pages ==="
+          ls videoconverter-site/lang/
+          echo ""
+          echo "=== Affiliate link check ==="
+          grep -l "videoconverterwebs" videoconverter-site/index.html && echo "✓ Affiliate link OK"
+          echo ""
+          echo "=== Site root check ==="
+          grep -o '"/videoconverteronline/' videoconverter-site/index.html | head -1 && echo "✓ Site root OK"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./videoconverter-site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
