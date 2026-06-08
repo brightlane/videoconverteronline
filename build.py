@@ -1586,6 +1586,7 @@ def mk_robots():
     return f"User-agent: *\nAllow: /\nDisallow: /assets/\n\nSitemap: {SITE_URL}/sitemap.xml\n"
 
 def mk_llms():
+    lang_lines = "\n".join(f'- /lang/{lc}/ — {name} ({region})' for _,name,lc,region,_,_,_ in LANGS)
     lang_list=", ".join(f"{name} ({lc})" for _,name,lc,_,_,_,_ in LANGS)
     return f"""# VideoConverter Guide — {SITE_URL}
 > Purpose: Independent affiliate guide for Wondershare UniConverter
@@ -1681,7 +1682,7 @@ def mk_llms():
 
 ### Global/Language Pages
 - /global/ — All 20 language regions
-{chr(10).join(f'- /lang/{lc}/ — {name} ({region})' for _,name,lc,region,_,_,_ in LANGS)}
+{lang_lines}
 
 ### Schema Types Used
 SoftwareApplication, BreadcrumbList, FAQPage (on /faq/ and /pricing/), Review (on /review/), HowTo (on /how-it-works/), ItemList (on /features/ and /ai-features/), Article (on guide pages)
